@@ -1,44 +1,132 @@
 const Card = require('../models/card');
 
-const getCards = async (req, res) => {
-  try {
-    const cards = await Card.find({});
-    res.status(200).send(cards);
-  } catch (error) {
-    res.status(500).send({ message: 'На сервере произошла ошибка запроса' });
-  }
+module.exports.getAll = (req, res) => {
+  Card.find({})
+    .then((cards) => res.send(
+      cards,
+    ))
+    .catch(() => res.status(500).send({
+      message: 'На сервере произошла ошибка',
+    }));
 };
 
-const deleteCard = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const card = await Card.findOne({ _id: id });
-    if (card) {
-      await Card.deleteOne(card);
-      return res.status(200).send({ message: 'Карточка удалена' }); // Спасибо за качественные развернутые ответы!!)) ох уж эти return ы ))
-    }
-    return res.status(404).send({ message: `Карточка c id ${id} не найдена` });
-  } catch (error) {
-    const ERROR_CODE = 400;
-    if (error.name === 'CastError') {
-      return res.status(ERROR_CODE).send({ message: 'Id введен некорректно' });
-    }
-    return res.status(500).send({ message: 'Ошибка сервера' });
-  }
+module.exports.create = (req, res) => {
+  const {
+    name,
+    link,
+  } = req.body;
+
+  Card.create({
+    name,
+    link,
+    owner: req.user._id,
+  })
+    .then((card) => res.send(
+      card,
+    ))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: `Переданы некорректные данные. ${err.message}`,
+        });
+      } else {
+        res.status(500).send({
+          message: 'На сервере произошла ошибка',
+        });
+      }
+    });
 };
 
-const createCard = async (req, res) => {
-  try {
-    const { name, link } = req.body;
-    const ownerId = req.user._id;
-    const card = await Card.create({ name, link, owner: ownerId });
-    return res.status(200).send(card);
-  } catch (error) {
-    const ERROR_CODE = 400;
-    if (error.name === 'ValidationError') {
-      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
-    }
-    return res.status(500).send({ message: 'Ошибка сервера' });
-  }
+module.exports.del = (req, res) => {
+  Card.findByIdAndRemove(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({
+          message: 'Не найдено',
+        });
+      } else {
+        res.send(
+          card,
+        );
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные',
+        });
+      } else {
+        res.status(500).send({
+          message: 'На сервере произошла ошибка',
+        });
+      }
+    });
 };
-module.exports = { getCards, createCard, deleteCard };
+
+module.exports.like = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId, {
+      $addToSet: {
+        likes: req.user._id,
+      },
+    }, {
+      new: true,
+    },
+  )
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({
+          message: 'Не найдено',
+        });
+      } else {
+        res.send(
+          card,
+        );
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные',
+        });
+      } else {
+        res.status(500).send({
+          message: 'На сервере произошла ошибка',
+        });
+      }
+    });
+};
+
+module.exports.unlike = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId, {
+      $pull: {
+        likes: req.user._id,
+      },
+    }, {
+      new: true,
+    },
+  )
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({
+          message: 'Не найдено',
+        });
+      } else {
+        res.send(
+          card,
+        );
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные',
+        });
+      } else {
+        res.status(500).send({
+          message: 'На сервере произошла ошибка',
+        });
+      }
+    });
+};
