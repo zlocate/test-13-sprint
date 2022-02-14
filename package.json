@@ -1,25 +1,24 @@
 {
-  "name": "express-mesto",
-  "version": "0.0.1",
-  "description": "",
+  "name": "node",
+  "version": "1.0.0",
+  "description": "##Проект Mesto фронтенд + бэкенд\r Директории\r public — статика, полученная в результате билда фронтенд-приложения на Реакте\r data — JSON-файлы для временной эмуляции работы с базой данных\r routes — папка с файлами роутера\r Остальные директории вспомогательные, создаются при необходимости разработчиком\r ## Запуск проекта\r npm run start — запускает сервер\r npm run dev — запускает сервер с hot-reload",
   "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.10.9"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx node app.js",
-    "dev": "npx nodemon app.js",
-    "lint": "npx eslint"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "fix": "eslint ./ --fix"
   },
   "keywords": [],
-  "author": "Tatiana Kirsanova",
-  "license": "ISC",
-  "devDependencies": {
-    "eslint": "^7.25.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1",
-    "nodemon": "*"
-  },
-  "dependencies": {
-    "express": "*",
-    "mongoose": "*"
-  }
+  "author": "Roman",
+  "license": "ISC"
 }
